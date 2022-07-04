@@ -9,11 +9,18 @@ public class PlayerControl : MonoBehaviour
     [SerializeField]
     GameObject player;
 
+    public float thresholdTest;
+
     public static Vector3 curDir;
 
+    private void Start()
+    {
+        
+    }
 
     void Update()
     {
+        float speed = CONSTANTS.MOVESPEED;
         if (Input.touchCount == 1)
         {
             touch = Input.GetTouch(0);
@@ -21,18 +28,48 @@ public class PlayerControl : MonoBehaviour
             {
                 if (touch.deltaPosition.sqrMagnitude > CONSTANTS.INPUTTHRESHOLD)
                 {
-                    player.transform.eulerAngles = GetMoveDir(touch);
+                    curDir  = GetMoveDir(touch);
                 }
             }
-            player.transform.Translate(Vector3.forward * CONSTANTS.MOVESPEED * Time.deltaTime);
+
+            if (touch.phase == TouchPhase.Ended)
+                speed = 0;
+
+
+            if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                player.transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
 
     }
 
+    private void LateUpdate()
+    {
+        player.transform.eulerAngles = curDir;
+    }
+
+
     Vector3 GetMoveDir(Touch touch)
     {
         float angle = Vector2.SignedAngle(Vector2.up, touch.deltaPosition);
+        angle = SmoothenRotate(angle);
         Vector3 moveDir = new Vector3(0, -angle, 0);
         return moveDir;
+    }
+
+    float SmoothenRotate(float angle)
+    {
+        float curAngle = player.transform.eulerAngles.y;
+        float deltaAngle = Mathf.Abs(GetTrueAngle(angle) - GetTrueAngle(curAngle));
+        if (deltaAngle > thresholdTest)
+            return angle;
+        else
+            return curAngle;
+    }
+
+    float GetTrueAngle(float angle)
+    {
+        if (angle < 0)
+            angle = 360 + angle;
+        return angle;
     }
 }

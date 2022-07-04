@@ -6,9 +6,15 @@ public class PickableBrick : Brick
 {
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag(CONSTANTS.PLAYERTAG) || collision.gameObject.CompareTag(CONSTANTS.BOTTAG))
+        if (collision.gameObject.CompareTag(TAGS.PLAYERTAG) || collision.gameObject.CompareTag(TAGS.BOTTAG))
         {
-            transform.SetParent(collision.transform);
+            gameObject.SetActive(false);
         }
+
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        
     }
 }
